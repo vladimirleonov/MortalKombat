@@ -1,6 +1,10 @@
-let player1 = {
+const $arenas = document.querySelector('.arenas');
+const $randomButton = document.querySelector('.arenas .button');
+
+const player1 = {
+    player: 1,
     name: 'Liukang',
-    hp: 40,
+    hp: 100,
     img: 'http://reactmarathon-api.herokuapp.com/assets/liukang.gif',
     weapon: ['weap1', 'weap2', 'weap3'],
     attack() {
@@ -8,9 +12,10 @@ let player1 = {
     }
 }
 
-let player2 = {
+const player2 = {
+    player: 2,
     name: 'Subzero',
-    hp: 80,
+    hp: 100,
     img: 'http://reactmarathon-api.herokuapp.com/assets/subzero.gif',
     weapon: ['weap1', 'weap2', 'weap3'],
     attack() {
@@ -18,52 +23,95 @@ let player2 = {
     }
 }
 
-//player1.attack();
-//player2.attack();
+function createElement(tag, className) {
+    const $tag = document.createElement(tag);
+    if(className) {
+        $tag.classList.add(className);
+    }
+    return $tag;
+}
 
-function createPlayer(clName, player) {
+function createPlayer(playerObj) {
 
-    //wrapper
-    const $playerWrapper = document.createElement('div');
-    $playerWrapper.className = clName;
+    const $playerWrapper = createElement('div', 'player'+playerObj.player);
+    const $playerProgressbar = createElement('div', 'progressbar');
+    const $playerCharacter = createElement('div', 'character');
+    const $playerLife = createElement('div', 'life');
+    const $playerName = createElement('div', 'name');
+    const $playerImg = createElement('img');
 
+    $playerLife.style.width = `${playerObj.hp}%`;
+    $playerName.innerText = playerObj.name;
+    $playerImg.src = playerObj.img;
 
-    //progressbar
-    const $playerProgressbar = document.createElement('div');
-    $playerProgressbar.className = 'progressbar';
-
-    const $playerLife = document.createElement('div');
-    $playerLife.className = 'life';
-    $playerLife.style.width = '100%';
-
-    const $playerName = document.createElement('div');
-    $playerName.className = 'name';
-    $playerName.innerText = player.name;
-
-    $playerProgressbar.appendChild($playerLife);
     $playerProgressbar.appendChild($playerName);
-
-
-    //character
-    const $playerCharacter = document.createElement('div');
-    $playerCharacter.className = 'character';
-
-    const $playerImg = document.createElement('img');
-    $playerImg.src = player.img;
+    $playerProgressbar.appendChild($playerLife);
 
     $playerCharacter.appendChild($playerImg);
 
-
-    //add progressbar and character to the wrapper
     $playerWrapper.appendChild($playerProgressbar);
     $playerWrapper.appendChild($playerCharacter);
 
-
-    //add player to arenas
-    const $arenas = document.querySelector('.arenas');
-    $arenas.appendChild($playerWrapper);
+    return $playerWrapper;
 }
 
-createPlayer('player1', player1);
-createPlayer('player2', player2);
+function playerLose(name) {
+    const $loseTitle = createElement('div', 'loseTitle');
+    $loseTitle.innerText = name+' lose';
+
+    return $loseTitle;
+}
+
+function playerWin(name) {
+    const $loseTitle = createElement('div', 'loseTitle');
+    $loseTitle.innerText = name+' wins';
+
+    return $loseTitle;
+}
+
+function getRandom(max) {
+    const num = Math.ceil(Math.random() * max);
+    console.log(num);
+    return num;
+}
+
+function changePlayer(player) {
+    if(player.player === 1) {
+        return player2.name;
+    } else {
+        return player1.name;
+    }
+}
+
+function changeHP (player) {
+    $playerLife = document.querySelector('.player'+player.player+' .life');
+
+    if (player.hp <= 0) {
+        player.hp = 0;
+    } else {
+        player.hp -= getRandom(20);
+    }
+
+    $playerLife.style.width = player.hp+'%';
+
+    if(player.hp < 0) {
+        playerWinName = changePlayer(player);
+        $arenas.appendChild(playerWin(playerWinName));
+        /*$arenas.appendChild(playerLose(player.name));*/
+        $randomButton.disabled = true;
+    }
+}
+
+$randomButton.addEventListener('click', function () {
+    changeHP(player1);
+    changeHP(player2);
+})
+
+$arenas.appendChild(createPlayer(player1));
+$arenas.appendChild(createPlayer(player2));
+
+
+
+
+
 
